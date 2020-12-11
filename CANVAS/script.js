@@ -2,6 +2,12 @@ var canvas = document.querySelector("#lienzo");
 
 var ctx = canvas.getContext("2d");
 
+var canvas2 = document.querySelector("#lienzoFichas");
+
+var ctx2 = canvas.getContext("2d");
+
+
+
 
 
 ctx.beginPath();
