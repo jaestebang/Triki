@@ -21,7 +21,10 @@ class Jugador {
         }
     }
 
-    //Elimina fichas
+    /**
+     * Elimina ficha
+     * @param {*} i Número de ficha
+     */
     deleteFicha(i) {
         this.fichas.splice(this.fichas.indexOf(i), 1);
     }

@@ -11,7 +11,7 @@ const radio = 10;
 /**
  * Dibuja las casillas del Triki
  */
-function drawCasillas() {
+drawCasillas = () => {
 
     /**
      * Dibula las casillas
@@ -43,7 +43,7 @@ function drawCasillas() {
 /**
  * Dibuja las líneas dentro del tablero
  */
-function drawLineas() {
+drawLineas = () => {
 
     /**
      * Dibula las líneas
@@ -73,7 +73,7 @@ function drawLineas() {
 /**
  * Dibuja tablero del rectángulo
  */
-function drawTablero() {
+drawTablero = () => {
     ctx.beginPath();
     ctx.lineWidth = lineWidth;
     ctx.strokeStyle = strokeStyle;
@@ -99,11 +99,25 @@ function drawTablero() {
 
 };
 
+/**
+ * Dibuja fichas para cada jugador
+ * @param {*} j Objeto de tipo jugador
+ */
+drawFichas = (j) => {
+    j.fichas.forEach(f => {
+        //Aquí debemos pintar las fichas en Canvas
+        console.log("Ficha", f);
+    });
+}
 
 //Ejecutamos el dibujo de canvas
 drawLineas();
 drawTablero();
 drawCasillas();
 
+//Crea jugadores
 let j1 = new Jugador(1); //Instanciamos Jugador 1
 let j2 = new Jugador(2); //Instanciamos Jugador 2
+
+//Dibuja fichas de jugador
+drawFichas(j1);
