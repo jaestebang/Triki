@@ -188,9 +188,10 @@ init = () => {
 
         //Recorremos el array de casillas
         casillasArr.forEach(c => {
-            if (Math.abs(c.x - m.x) <= 10 && Math.abs(c.y - m.y) <= 10) {
+            if (!c.b && (Math.abs(c.x - m.x) <= 10 && Math.abs(c.y - m.y) <= 10)) {
                 f.xi = c.x - 10;
                 f.yi = c.y - 10;
+                c.b = true;
             }
         });
 
