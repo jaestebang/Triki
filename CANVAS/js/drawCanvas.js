@@ -7,6 +7,8 @@ const lineWidth = 2;
 const strokeStyle = "black";
 const radio = 10;
 
+//Imagen
+var img = new Image();
 
 /**
  * Dibuja las casillas del Triki
@@ -101,23 +103,49 @@ drawTablero = () => {
 
 /**
  * Dibuja fichas para cada jugador
- * @param {*} j Objeto de tipo jugador
+ * @param {*} j1 Objeto de tipo jugador 1
+ * @param {*} j2 Objeto de tipo jugador 2
  */
-drawFichas = (j) => {
-    j.fichas.forEach(f => {
-        //Aquí debemos pintar las fichas en Canvas
-        console.log("Ficha", f);
+drawFichas = (j1, j2) => {
+
+    //Recorre fichas
+    j1.fichas.forEach(f => {
+        ctx.drawImage(img, 250, 0, 250, 250, 400 + (f * 20), 220, 20, 20);
+    });
+
+    //Recorre fichas
+    j2.fichas.forEach(f => {
+        ctx.drawImage(img, 0, 0, 250, 250, 400 + (f * 20), 250, 20, 20);
     });
 }
 
-//Ejecutamos el dibujo de canvas
-drawLineas();
-drawTablero();
-drawCasillas();
+/**
+ * Dibuja CANVAS
+ */
+draw = () => {
+    ctx.globalCompositeOperation = 'triki';
+    ctx.clearRect(0, 0, 1000, 500); // clear canvas
 
-//Crea jugadores
-let j1 = new Jugador(1); //Instanciamos Jugador 1
-let j2 = new Jugador(2); //Instanciamos Jugador 2
+    //Ejecutamos el dibujo de canvas
+    drawLineas();
+    drawTablero();
+    drawCasillas();
 
-//Dibuja fichas de jugador
-drawFichas(j1);
+    //Crea jugadores
+    let j1 = new Jugador(1); //Instanciamos Jugador 1
+    let j2 = new Jugador(2); //Instanciamos Jugador 2
+
+    //Dibuja fichas de jugador
+    drawFichas(j1, j2);
+}
+
+/**
+ * Init
+ */
+init = () => {
+    img.src = "img/boton.png";
+    window.requestAnimationFrame(draw);
+}
+
+//Inicializa
+init();
