@@ -19,7 +19,15 @@ class Jugador {
             let lx = 400 + (i * 20);
             let ly = (codigo == 1) ? 220 : 250;
 
-            var f = { id: i, x: lx, y: ly };
+            /** Objeto de tipo ficha */
+            var f = {
+                id: i,
+                x: lx,
+                y: ly,
+                xi: lx,
+                yi: ly,
+                move: false
+            };
 
             this.fichas.push(f);
             i++;
@@ -44,5 +52,24 @@ class Jugador {
         var f = this.fichas.filter(f => f.id == id);
         f[0].x = x;
         f[0].y = y;
+    }
+
+    /**
+     * Reestablece la posición en X - Y
+     * @param {*} id ID Ficha
+     */
+    resetPosicion(id) {
+        var f = this.fichas.filter(f => f.id == id);
+        f[0].x = f[0].xi;
+        f[0].y = f[0].yi;
+    }
+
+    /**
+     * Reestablece movimiento
+     */
+    resetMove() {
+        this.fichas.forEach(f => {
+            f.move = false;
+        });
     }
 }

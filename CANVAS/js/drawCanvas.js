@@ -16,6 +16,9 @@ var j2 = new Jugador(2); //Instanciamos Jugador 2
 //Imagen
 var img = document.querySelector("#boton");
 
+//Arrastrar
+var arrastrar = false;
+
 /**
  * Dibuja las casillas del Triki
  */
@@ -44,7 +47,7 @@ drawCasillas = () => {
     //Recorremos el array de casillas
     casillasArr.forEach(c => {
         draw(c.x, c.y);
-    })
+    });
 
 }
 
@@ -152,9 +155,110 @@ init = () => {
     //Dibuja
     draw();
 
-    tablerocanvas.addEventListener('mousemove', function (e) {
-        j1.setPosicion(5, e.clientX, e.clientY);
+    /**
+     * Posición X - Y para el mouse
+     * @param {*} canvas Canvas
+     * @param {*} evt Evento
+     * @param {boolean} Indica si restamos el radio
+     */
+    let oMousePos = (canvas, evt, ind = true) => {
+        var ClientRect = canvas.getBoundingClientRect();
+        return { //objeto
+            x: Math.round(evt.clientX - ClientRect.left) - ((ind) ? 10 : 0),
+            y: Math.round(evt.clientY - ClientRect.top) - ((ind) ? 10 : 0)
+        }
+    }
+
+    /**
+     * Actualiza la posición de una ficha si se acerca a la casilla
+     * @param {*} j 
+     * @param {*} f 
+     */
+    let setPosFicha = (j, f, m) => {
+        j.setPosicion(f.id, m.x, m.y);
+    }
+
+    /**
+     * Set posición ficha a casilla
+     * @param {*} j Jugador
+     * @param {*} f Ficha
+     * @param {*} m Coordenadas X - Y
+     */
+    let setPosFichaCasilla = (j, f, m) => {
+
+        //Recorremos el array de casillas
+        casillasArr.forEach(c => {
+            if (Math.abs(c.x - m.x) <= 10 && Math.abs(c.y - m.y) <= 10) {
+                f.xi = c.x - 10;
+                f.yi = c.y - 10;
+            }
+        });
+
+        //Reiniciamos posición
+        j.resetPosicion(f.id);
+    }
+
+    //Función anónima evento MouseMove
+    tablerocanvas.addEventListener('mousemove', (e) => {
+        if (!arrastrar) {
+            return;
+        } else {
+
+            //Obtiene posición mouse
+            let m = oMousePos(tablerocanvas, e);
+
+            //Mueve fichas
+            j1.fichas.forEach(f => {
+                if (f.move) setPosFicha(j1, f, m);
+            });
+            j2.fichas.forEach(f => {
+                if (f.move) setPosFicha(j2, f, m);
+            });
+        }
         draw();
+    });
+
+    //Función anónima evento MouseUp
+    tablerocanvas.addEventListener("mouseup", (e) => {
+        arrastrar = false;
+
+        //Obtiene posición mouse
+        let m = oMousePos(tablerocanvas, e, false);
+
+        //Resetea posición fichas en movimiento
+        j1.fichas.forEach(f => {
+            if (f.move) setPosFichaCasilla(j1, f, m);
+        });
+        j2.fichas.forEach(f => {
+            if (f.move) setPosFichaCasilla(j2, f, m);
+        });
+
+        //Dibuja de nuevo los objetos de CANVAS
+        draw();
+    });
+
+    //Función anónima evento MouseDown
+    tablerocanvas.addEventListener("mousedown", (e) => {
+        arrastrar = true;
+        j1.resetMove();
+        j2.resetMove();
+
+        //Obtiene posición mouse
+        let m = oMousePos(tablerocanvas, e);
+
+        //Obtiene posición fichas jugador 1
+        j1.fichas.forEach(f => {
+            if (Math.abs(m.x - f.x) < 10 && Math.abs(m.y - f.y) < 10) {
+                f.move = true;
+            }
+        });
+
+        //Obtiene posición fichas jugador 2
+        j2.fichas.forEach(f => {
+            if (Math.abs(m.x - f.x) < 10 && Math.abs(m.y - f.y) < 10) {
+                f.move = true;
+            }
+        });
     });
 }
 
