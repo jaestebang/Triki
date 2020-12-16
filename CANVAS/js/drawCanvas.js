@@ -7,8 +7,9 @@ const lineWidth = 2;
 const strokeStyle = "black";
 const radio = 10;
 
-//Imagen
-var img = new Image();
+//Usuarios
+var j1 = new Jugador(1); //Instanciamos Jugador 1
+var j2 = new Jugador(2); //Instanciamos Jugador 2
 
 /**
  * Dibuja las casillas del Triki
@@ -107,16 +108,25 @@ drawTablero = () => {
  * @param {*} j2 Objeto de tipo jugador 2
  */
 drawFichas = (j1, j2) => {
-
     //Recorre fichas
     j1.fichas.forEach(f => {
-        ctx.drawImage(img, 250, 0, 250, 250, 400 + (f * 20), 220, 20, 20);
+        let img = new Image();
+        img.src = "img/boton.png";
+        img.onload = () => {
+            ctx.drawImage(img, 250, 0, 250, 250, f.x, f.y, 20, 20);
+        }
     });
 
     //Recorre fichas
     j2.fichas.forEach(f => {
-        ctx.drawImage(img, 0, 0, 250, 250, 400 + (f * 20), 250, 20, 20);
+        let img = new Image();
+        img.src = "img/boton.png";
+        img.onload = () => {
+            ctx.drawImage(img, 0, 0, 250, 250, f.x, f.y, 20, 20);
+        }
     });
+
+    ctx.closePath();
 }
 
 /**
@@ -131,20 +141,24 @@ draw = () => {
     drawTablero();
     drawCasillas();
 
-    //Crea jugadores
-    let j1 = new Jugador(1); //Instanciamos Jugador 1
-    let j2 = new Jugador(2); //Instanciamos Jugador 2
-
     //Dibuja fichas de jugador
     drawFichas(j1, j2);
+
+
 }
 
 /**
  * Init
  */
 init = () => {
-    img.src = "img/boton.png";
-    window.requestAnimationFrame(draw);
+
+    //Dibuja
+    draw();
+
+    tablerocanvas.addEventListener('mousemove', function (e) {
+        j1.setPosicion(5, e.clientX, e.clientY);
+        draw();
+    });
 }
 
 //Inicializa
