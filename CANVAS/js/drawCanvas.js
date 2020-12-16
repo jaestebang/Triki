@@ -1,6 +1,8 @@
 //Inicializa el lienzo de canvas
 var tablerocanvas = document.querySelector("#lienzo");
+var fichascanvas = document.querySelector("#lienzo");
 var ctx = tablerocanvas.getContext("2d");
+var ctxFichas = fichascanvas.getContext("2d");
 
 //Constantes
 const lineWidth = 2;
@@ -10,6 +12,9 @@ const radio = 10;
 //Usuarios
 var j1 = new Jugador(1); //Instanciamos Jugador 1
 var j2 = new Jugador(2); //Instanciamos Jugador 2
+
+//Imagen
+var img = document.querySelector("#boton");
 
 /**
  * Dibuja las casillas del Triki
@@ -108,25 +113,19 @@ drawTablero = () => {
  * @param {*} j2 Objeto de tipo jugador 2
  */
 drawFichas = (j1, j2) => {
+    ctxFichas.globalCompositeOperation = 'fichas';
+
     //Recorre fichas
     j1.fichas.forEach(f => {
-        let img = new Image();
-        img.src = "img/boton.png";
-        img.onload = () => {
-            ctx.drawImage(img, 250, 0, 250, 250, f.x, f.y, 20, 20);
-        }
+        ctxFichas.drawImage(img, 250, 0, 250, 250, f.x, f.y, 20, 20);
     });
 
     //Recorre fichas
     j2.fichas.forEach(f => {
-        let img = new Image();
-        img.src = "img/boton.png";
-        img.onload = () => {
-            ctx.drawImage(img, 0, 0, 250, 250, f.x, f.y, 20, 20);
-        }
+        ctxFichas.drawImage(img, 0, 0, 250, 250, f.x, f.y, 20, 20);
     });
 
-    ctx.closePath();
+    ctxFichas.closePath();
 }
 
 /**
@@ -143,8 +142,6 @@ draw = () => {
 
     //Dibuja fichas de jugador
     drawFichas(j1, j2);
-
-
 }
 
 /**
