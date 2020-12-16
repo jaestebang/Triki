@@ -112,20 +112,41 @@ drawTablero = () => {
 
 /**
  * Dibuja fichas para cada jugador
- * @param {*} j1 Objeto de tipo jugador 1
- * @param {*} j2 Objeto de tipo jugador 2
+ * @param {*} jx Objeto de tipo jugador 1
+ * @param {*} jy Objeto de tipo jugador 2
  */
-drawFichas = (j1, j2) => {
+drawFichas = (jx, jy) => {
     ctxFichas.globalCompositeOperation = 'fichas';
 
-    //Recorre fichas
-    j1.fichas.forEach(f => {
-        ctxFichas.drawImage(img, 250, 0, 250, 250, f.x, f.y, 20, 20);
+    let jug = [];
+
+    jug.push(jx);
+    jug.push(jy);
+
+    //Pinta primero las fichas que no está moviendo
+    jug.forEach(j => {
+        j.fichas.forEach(f => {
+            if (!f.move) {
+                if (j.codigo == 1) {
+                    ctxFichas.drawImage(img, 250, 0, 250, 250, f.x, f.y, 20, 20);
+                } else {
+                    ctxFichas.drawImage(img, 0, 0, 250, 250, f.x, f.y, 20, 20);
+                }
+            }
+        })
     });
 
-    //Recorre fichas
-    j2.fichas.forEach(f => {
-        ctxFichas.drawImage(img, 0, 0, 250, 250, f.x, f.y, 20, 20);
+    //Pinta al final la ficha que se está moviendo
+    jug.forEach(j => {
+        j.fichas.forEach(f => {
+            if (f.move) {
+                if (j.codigo == 1) {
+                    ctxFichas.drawImage(img, 250, 0, 250, 250, f.x, f.y, 20, 20);
+                } else {
+                    ctxFichas.drawImage(img, 0, 0, 250, 250, f.x, f.y, 20, 20);
+                }
+            }
+        })
     });
 
     ctxFichas.closePath();
@@ -143,7 +164,7 @@ draw = () => {
     drawTablero();
     drawCasillas();
 
-    //Dibuja fichas de jugador
+    //Dibuja fichas de jugadores
     drawFichas(j1, j2);
 }
 
@@ -221,7 +242,7 @@ init = () => {
 
     //Función anónima evento MouseUp
     tablerocanvas.addEventListener("mouseup", (e) => {
-        arrastrar = false;
+        if (arrastrar) arrastrar = false;
 
         //Obtiene posición mouse
         let m = oMousePos(tablerocanvas, e, false);
@@ -250,6 +271,7 @@ init = () => {
         //Obtiene posición fichas jugador 1
         j1.fichas.forEach(f => {
             if (Math.abs(m.x - f.x) < 10 && Math.abs(m.y - f.y) < 10) {
+                j1.turno = true;
                 f.move = true;
             }
         });
@@ -257,9 +279,38 @@ init = () => {
         //Obtiene posición fichas jugador 2
         j2.fichas.forEach(f => {
             if (Math.abs(m.x - f.x) < 10 && Math.abs(m.y - f.y) < 10) {
+                j2.turno = true;
                 f.move = true;
             }
         });
+    });
+
+    //Función anónima evento DblClick
+    tablerocanvas.addEventListener("dblclick", (e) => {
+        arrastrar = false;
+        j1.resetMove();
+        j2.resetMove();
+
+        //Obtiene posición mouse
+        let m = oMousePos(tablerocanvas, e);
+
+        //Obtiene posición fichas jugador 1
+        j1.fichas.forEach(f => {            
+            if (Math.abs(m.x - f.x) < 10 && Math.abs(m.y - f.y) < 10) {
+                console.log(f.id);
+                j1.deleteFicha(f.id);
+            }
+        });
+
+        //Obtiene posición fichas jugador 2
+        j2.fichas.forEach(f => {
+            if (Math.abs(m.x - f.x) < 10 && Math.abs(m.y - f.y) < 10) {
+                console.log(f.id);
+                j2.deleteFicha(f.id)
+            }
+        });
+
+        draw();
     });
 }
 

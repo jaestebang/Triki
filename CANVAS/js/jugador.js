@@ -4,6 +4,7 @@
 class Jugador {
     fichas = [];
     color;
+    turno = false;
 
     /**
      * Consturcot
@@ -38,8 +39,12 @@ class Jugador {
      * Elimina ficha
      * @param {*} i Número de ficha
      */
-    deleteFicha(i) {
-        this.fichas.splice(this.fichas.indexOf(i), 1);
+    deleteFicha(id) {
+        console.log(this.fichas);
+        this.fichas.forEach(f => {
+            if (f.id === id) this.fichas.splice(this.fichas.indexOf(f), 1);
+        });
+        
     }
 
     /**
@@ -68,6 +73,7 @@ class Jugador {
      * Reestablece movimiento
      */
     resetMove() {
+        this.turno = false;
         this.fichas.forEach(f => {
             f.move = false;
         });
