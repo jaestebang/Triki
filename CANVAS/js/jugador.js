@@ -23,6 +23,7 @@ class Jugador {
             /** Objeto de tipo ficha */
             var f = {
                 id: i,
+                c: null,
                 x: lx,
                 y: ly,
                 xi: lx,

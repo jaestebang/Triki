@@ -213,11 +213,31 @@ init = () => {
                 f.xi = c.x - 10;
                 f.yi = c.y - 10;
                 c.b = true;
+                f.c = c.c;
             }
         });
 
-        //Reiniciamos posición
+        //Reiniciamos posición y asignamos casillas vacías
         j.resetPosicion(f.id);
+        setCasillasVacias();
+    }
+
+    /**
+     * Set casillas vacías
+     */
+    let setCasillasVacias = () => {
+        
+        //Recorremos casillas / Fichas
+        casillasArr.forEach(c => {
+            c.b = false;
+
+            j1.fichas.forEach(f => {
+                if (f.c === c.c) c.b = true;
+            });
+            j2.fichas.forEach(f => {
+                if (f.c === c.c) c.b = true;
+            });
+        })
     }
 
     //Función anónima evento MouseMove
