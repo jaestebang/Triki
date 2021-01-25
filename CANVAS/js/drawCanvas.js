@@ -176,6 +176,8 @@ init = () => {
     //Dibuja
     draw();
 
+    console.log(validarTriki());
+
     /**
      * Posición X - Y para el mouse
      * @param {*} canvas Canvas
@@ -332,6 +334,7 @@ init = () => {
 
         draw();
     });
+  
 }
 
 //Inicializa
