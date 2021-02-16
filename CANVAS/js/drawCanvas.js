@@ -226,7 +226,7 @@ init = () => {
      * Set casillas vacías
      */
     let setCasillasVacias = () => {
-        
+
         //Recorremos casillas / Fichas
         casillasArr.forEach(c => {
             c.b = false;
@@ -238,6 +238,44 @@ init = () => {
                 if (f.c === c.c) c.b = true;
             });
         })
+    }
+
+    /**
+     * Valida si realizo un Triki
+     * @param {*} j 
+     */
+    let triki = (j) => {
+        let triki;
+
+        trikiArr.forEach(t => {
+            let tk = 0;
+            j.fichas.forEach(f => {
+                if (f.c != null) {
+                    if (t.c.indexOf(f.c) >= 0) {
+                        tk += 1;
+                    }
+                }
+            });
+
+            //Triki
+            if (tk === 3 && j.triki.indexOf(t.id) < 0) {
+                triki = t;
+                return;
+            }
+        });
+
+        //Asigna Triki a jugador y muestra en pantalla
+        if (triki) {
+            j.setTriki(triki.id);
+            let strTriki;
+            strTriki = "Jugador: " + j.codigo + "\n";
+            strTriki = strTriki + "Triki: " + triki.id + "\n";
+            strTriki = strTriki + "Casillas: " + triki.c + "\n";
+
+            alert(strTriki);
+            alert("Arrastra una ficha rival para eliminar del juego")
+        }
+        return triki;
     }
 
     //Función anónima evento MouseMove
@@ -269,14 +307,20 @@ init = () => {
 
         //Resetea posición fichas en movimiento
         j1.fichas.forEach(f => {
-            if (f.move) setPosFichaCasilla(j1, f, m);
+            if (f.move)
+                setPosFichaCasilla(j1, f, m);
         });
         j2.fichas.forEach(f => {
-            if (f.move) setPosFichaCasilla(j2, f, m);
-        });
+            if (f.move)
+                setPosFichaCasilla(j2, f, m);
+            });
 
         //Dibuja de nuevo los objetos de CANVAS
         draw();
+
+        //Valida TRIKI
+        triki(j1);
+        triki(j2);
     });
 
     //Función anónima evento MouseDown
@@ -315,7 +359,7 @@ init = () => {
         let m = oMousePos(tablerocanvas, e);
 
         //Obtiene posición fichas jugador 1
-        j1.fichas.forEach(f => {            
+        j1.fichas.forEach(f => {
             if (Math.abs(m.x - f.x) < 10 && Math.abs(m.y - f.y) < 10) {
                 console.log(f.id);
                 j1.deleteFicha(f.id);

@@ -3,11 +3,12 @@
  */
 class Jugador {
     fichas = [];
+    triki = [];
     color;
     turno = false;
 
     /**
-     * Consturcot
+     * Constructor del jugador
      * @param {*} id ID Jugador
      */
     constructor(codigo) {
@@ -78,5 +79,13 @@ class Jugador {
         this.fichas.forEach(f => {
             f.move = false;
         });
+    }
+
+    /**
+     * Almacena Triki realizado
+     * @param {*} id ID Triki
+     */
+    setTriki(id) {
+        this.triki.push(id);
     }
 }
