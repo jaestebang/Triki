@@ -122,11 +122,3 @@ var vecinosArr = [{
     x2: 'U',
     x3: 'X',
 }];
-
- //Validar triki
- function validarTriki (){
-    for (let i = 0; i < vecinosArr.length; i++) {
-  return console.log(vecinosArr[i]);
-        
-    };
-}
