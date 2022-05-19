@@ -9,13 +9,13 @@ const ctx: CanvasRenderingContext2D = tablerocanvas.getContext("2d");
 const ctxFichas: CanvasRenderingContext2D = fichascanvas.getContext("2d");
 
 //Constantes
-const lineWidth = 2;
-const strokeStyle = "black";
-const radio = 10;
+const LINEWIDTH = 2;
+const STROKESTYLE = "black";
+const RADIUS = 10;
 
 //Usuarios
-var j1 = new Player(1); //Instanciamos Jugador 1
-var j2 = new Player(2); //Instanciamos Jugador 2
+const j1 = new Player(); //Instanciamos Jugador 1
+const j2 = new Player(); //Instanciamos Jugador 2
 
 //Imagen
 const img: HTMLImageElement = document.querySelector("#boton");
@@ -33,15 +33,15 @@ const drawCasillas = () => {
      * @param {*} x Posición inicial en X
      * @param {*} y Posición inicial en Y
      */
-    let draw = (x, y) => {
+    let draw = (x: number, y:number) => {
         ctx.beginPath();
 
         //Círculos
-        ctx.arc(x, y, radio, 0, (2 * Math.PI), false);
+        ctx.arc(x, y, RADIUS, 0, (2 * Math.PI), false);
         //Relleno
         ctx.font = '15px sans-serif';
         ctx.lineWidth = 2.5;
-        ctx.strokeStyle = strokeStyle;
+        ctx.strokeStyle = STROKESTYLE;
         ctx.fillStyle = "lightgray";
         ctx.fill();
         ctx.stroke();
@@ -66,12 +66,12 @@ const drawLineas = () => {
      * @param {*} fx Posición final en X
      * @param {*} fy Posición final en Y
      */
-    let draw = (x, y, fx, fy) => {
+    let draw = (x: number, y: number, fx: number, fy: number) => {
         ctx.beginPath();
         ctx.moveTo(x, y);
         ctx.lineTo(fx, fy);
-        ctx.lineWidth = lineWidth;
-        ctx.strokeStyle = strokeStyle;
+        ctx.lineWidth = LINEWIDTH;
+        ctx.strokeStyle = STROKESTYLE;
         ctx.stroke();
     }
 
@@ -89,8 +89,8 @@ const drawLineas = () => {
  */
 const drawTablero = () => {
     ctx.beginPath();
-    ctx.lineWidth = lineWidth;
-    ctx.strokeStyle = strokeStyle;
+    ctx.lineWidth = LINEWIDTH;
+    ctx.strokeStyle = STROKESTYLE;
 
     //Relleno
     var fillStyle = ctx.createLinearGradient(0, 0, 750, 375);
@@ -118,7 +118,7 @@ const drawTablero = () => {
  * @param {*} jx Objeto de tipo jugador 1
  * @param {*} jy Objeto de tipo jugador 2
  */
-const drawFichas = (jx, jy) => {
+const drawFichas = (jx: Player, jy: Player) => {
     ctxFichas.globalCompositeOperation = <GlobalCompositeOperation>'fichas';
 
     let jug = [];
@@ -185,7 +185,7 @@ const init = () => {
      * @param {*} evt Evento
      * @param {boolean} Indica si restamos el radio
      */
-    let oMousePos = (canvas, evt, ind = true) => {
+    let oMousePos = (canvas: HTMLCanvasElement, evt: MouseEvent, ind = true) => {
         var ClientRect = canvas.getBoundingClientRect();
         return { //objeto
             x: Math.round(evt.clientX - ClientRect.left) - ((ind) ? 10 : 0),
@@ -198,7 +198,7 @@ const init = () => {
      * @param {*} j 
      * @param {*} f 
      */
-    let setPosFicha = (j, f, m) => {
+    let setPosFicha = (j: Player, f, m) => {
         j.setPosicion(f.id, m.x, m.y);
     }
 
@@ -247,7 +247,7 @@ const init = () => {
      * Valida si realizo un Triki
      * @param {*} j 
      */
-    let triki = (j) => {
+    let triki = (j: Player) => {
         let triki;
 
         TRIKI_ARR.forEach(t => {

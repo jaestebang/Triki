@@ -1,3 +1,5 @@
+import { SingletonIdPlayer } from './singleton-idplayer';
+
 /**
  * Clase Jugador
  */
@@ -10,18 +12,18 @@ export class Player {
 
     public turno: boolean = false;
 
-    constructor(codigo: number) {
-        this.codigo = codigo;
-        this.color = (codigo == 1) ? "red" : "blue";
+    constructor() {
+        this.codigo = SingletonIdPlayer.getInstance().iterator;;
+        this.color = (this.codigo == 1) ? "red" : "blue";
 
         //Inicializa fichas
         let i = 1;
         while (i <= 9) {
-            let lx = 400 + (i * 20);
-            let ly = (codigo == 1) ? 220 : 250;
+            const lx = 400 + (i * 20);
+            const ly = (this.codigo == 1) ? 220 : 250;
 
             /** Objeto de tipo ficha */
-            var f = {
+            const f = {
                 id: i,
                 c: null,
                 x: lx,
