@@ -31,7 +31,7 @@ body {
     display: none;
 }
 
-@media all and (orientation: portrait) {
+/*@media all and (orientation: portrait) {
     #contenedor {
         display: none;
     }
@@ -46,4 +46,4 @@ body {
         background-size: cover;
         background-position: center;
     }
-}
+}*/
