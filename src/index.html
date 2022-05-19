@@ -5,7 +5,7 @@
     <title>
         Super TRIKI
     </title>
-    <link rel="stylesheet" href="../CANVAS/css/estilos.css" type="text/css" />
+    <link rel="stylesheet" href="../src/assets/styles/estilos.css" type="text/css" />
 
 </head>
 
@@ -16,15 +16,11 @@
     <div id="contenedor">
         <canvas id="lienzo" width="1000px" height="500px"></canvas>
         <canvas id="fichas" width="1000px" height="500px"></canvas>
-        <img id="boton" src="../CANVAS/img/boton.png" style="visibility: hidden;">
+        <img id="boton" src="../src/assets/img/boton.png" style="visibility: hidden;">
         <button id="btnAmpliar" onclick="ampliar()">Ampliar Canvas</button>
     </div>
 
-    <script src="../CANVAS/js/triki.js"></script>
-    <script src="../CANVAS/js/casillas.js"></script>
-    <script src="../CANVAS/js/jugador.js"></script>
-    <script src="../CANVAS/js/canvas.js"></script>
-    <script src="../CANVAS/js/drawCanvas.js"></script>
+    <script type="module" src="../src/ts/drawCanvas.ts"></script>
 </body>
 
 </html>

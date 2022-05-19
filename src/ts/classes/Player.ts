@@ -1,17 +1,16 @@
 /**
  * Clase Jugador
  */
-class Jugador {
-    fichas = [];
-    triki = [];
-    color;
-    turno = false;
+export class Player {
+    public codigo: number;
+    public color: string;
 
-    /**
-     * Constructor del jugador
-     * @param {*} id ID Jugador
-     */
-    constructor(codigo) {
+    public fichas = [];
+    public triki = [];
+
+    public turno: boolean = false;
+
+    constructor(codigo: number) {
         this.codigo = codigo;
         this.color = (codigo == 1) ? "red" : "blue";
 
@@ -41,12 +40,12 @@ class Jugador {
      * Elimina ficha
      * @param {*} i Número de ficha
      */
-    deleteFicha(id) {
+    deleteFicha(id: number): void {
         console.log(this.fichas);
         this.fichas.forEach(f => {
             if (f.id === id) this.fichas.splice(this.fichas.indexOf(f), 1);
         });
-        
+
     }
 
     /**
@@ -55,7 +54,7 @@ class Jugador {
      * @param {*} x Posición en X
      * @param {*} y Posición en Y
      */
-    setPosicion(id, x, y) {
+    setPosicion(id: null, x: number, y: number) {
         var f = this.fichas.filter(f => f.id == id);
         f[0].x = x;
         f[0].y = y;
@@ -65,7 +64,7 @@ class Jugador {
      * Reestablece la posición en X - Y
      * @param {*} id ID Ficha
      */
-    resetPosicion(id) {
+    resetPosicion(id: number) {
         var f = this.fichas.filter(f => f.id == id);
         f[0].x = f[0].xi;
         f[0].y = f[0].yi;
@@ -85,7 +84,7 @@ class Jugador {
      * Almacena Triki realizado
      * @param {*} id ID Triki
      */
-    setTriki(id) {
+    setTriki(id: null) {
         this.triki.push(id);
     }
 }

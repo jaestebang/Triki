@@ -3,7 +3,7 @@
  * @param {Number} id Código de triki
  * @param {String} c Códigos de casillas
  */
-var trikiArr = [{
+export const TRIKI_ARR = [{
     id: 1,
     c: ['A', 'B', 'C']
 },

@@ -1,8 +1,12 @@
+import { Player } from './classes/Player';
+import { BOXES } from './Boxes';
+import { TRIKI_ARR } from './Triki'
+
 //Inicializa el lienzo de canvas
-var tablerocanvas = document.querySelector("#lienzo");
-var fichascanvas = document.querySelector("#lienzo");
-var ctx = tablerocanvas.getContext("2d");
-var ctxFichas = fichascanvas.getContext("2d");
+const tablerocanvas: HTMLCanvasElement = document.querySelector("#lienzo");
+const fichascanvas: HTMLCanvasElement = document.querySelector("#lienzo");
+const ctx: CanvasRenderingContext2D = tablerocanvas.getContext("2d");
+const ctxFichas: CanvasRenderingContext2D = fichascanvas.getContext("2d");
 
 //Constantes
 const lineWidth = 2;
@@ -10,19 +14,19 @@ const strokeStyle = "black";
 const radio = 10;
 
 //Usuarios
-var j1 = new Jugador(1); //Instanciamos Jugador 1
-var j2 = new Jugador(2); //Instanciamos Jugador 2
+var j1 = new Player(1); //Instanciamos Jugador 1
+var j2 = new Player(2); //Instanciamos Jugador 2
 
 //Imagen
-var img = document.querySelector("#boton");
+const img: HTMLImageElement = document.querySelector("#boton");
 
 //Arrastrar
-var arrastrar = false;
+let arrastrar = false;
 
 /**
  * Dibuja las casillas del Triki
  */
-drawCasillas = () => {
+const drawCasillas = () => {
 
     /**
      * Dibula las casillas
@@ -33,8 +37,7 @@ drawCasillas = () => {
         ctx.beginPath();
 
         //Círculos
-        ctx.arc(x, y, radio, 0, 2 * Math.PI, 0);
-
+        ctx.arc(x, y, radio, 0, (2 * Math.PI), false);
         //Relleno
         ctx.font = '15px sans-serif';
         ctx.lineWidth = 2.5;
@@ -45,7 +48,7 @@ drawCasillas = () => {
     }
 
     //Recorremos el array de casillas
-    casillasArr.forEach(c => {
+    BOXES.forEach(c => {
         draw(c.x, c.y);
     });
 
@@ -54,7 +57,7 @@ drawCasillas = () => {
 /**
  * Dibuja las líneas dentro del tablero
  */
-drawLineas = () => {
+const drawLineas = () => {
 
     /**
      * Dibula las líneas
@@ -84,7 +87,7 @@ drawLineas = () => {
 /**
  * Dibuja tablero del rectángulo
  */
-drawTablero = () => {
+const drawTablero = () => {
     ctx.beginPath();
     ctx.lineWidth = lineWidth;
     ctx.strokeStyle = strokeStyle;
@@ -115,8 +118,8 @@ drawTablero = () => {
  * @param {*} jx Objeto de tipo jugador 1
  * @param {*} jy Objeto de tipo jugador 2
  */
-drawFichas = (jx, jy) => {
-    ctxFichas.globalCompositeOperation = 'fichas';
+const drawFichas = (jx, jy) => {
+    ctxFichas.globalCompositeOperation = <GlobalCompositeOperation>'fichas';
 
     let jug = [];
 
@@ -155,8 +158,8 @@ drawFichas = (jx, jy) => {
 /**
  * Dibuja CANVAS
  */
-draw = () => {
-    ctx.globalCompositeOperation = 'triki';
+const draw = () => {
+    ctx.globalCompositeOperation = <GlobalCompositeOperation>'triki';
     ctx.clearRect(0, 0, 1000, 500); // clear canvas
 
     //Ejecutamos el dibujo de canvas
@@ -171,7 +174,7 @@ draw = () => {
 /**
  * Init
  */
-init = () => {
+const init = () => {
 
     //Dibuja
     draw();
@@ -208,7 +211,7 @@ init = () => {
     let setPosFichaCasilla = (j, f, m) => {
 
         //Recorremos el array de casillas
-        casillasArr.forEach(c => {
+        BOXES.forEach(c => {
             if (!c.b && (Math.abs(c.x - m.x) <= 10 && Math.abs(c.y - m.y) <= 10)) {
                 f.xi = c.x - 10;
                 f.yi = c.y - 10;
@@ -228,7 +231,7 @@ init = () => {
     let setCasillasVacias = () => {
 
         //Recorremos casillas / Fichas
-        casillasArr.forEach(c => {
+        BOXES.forEach(c => {
             c.b = false;
 
             j1.fichas.forEach(f => {
@@ -247,7 +250,7 @@ init = () => {
     let triki = (j) => {
         let triki;
 
-        trikiArr.forEach(t => {
+        TRIKI_ARR.forEach(t => {
             let tk = 0;
             j.fichas.forEach(f => {
                 if (f.c != null) {
@@ -313,7 +316,7 @@ init = () => {
         j2.fichas.forEach(f => {
             if (f.move)
                 setPosFichaCasilla(j2, f, m);
-            });
+        });
 
         //Dibuja de nuevo los objetos de CANVAS
         draw();

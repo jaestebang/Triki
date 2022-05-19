@@ -3,9 +3,9 @@
  * @param {String} c Código de casilla
  * @param {Number} x Posición inicial en coordenada X
  * @param {Number} y Posición inicial en coordenada Y
-* @param {Boolean} b Indica si está ocupada
+ * @param {Boolean} b Indica si está ocupada
  */
-var casillasArr = [{
+export const BOXES = [{
     c: 'A',
     x: 20,
     y: 10,
