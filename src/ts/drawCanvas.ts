@@ -1,6 +1,5 @@
 import { Player } from './classes/Player';
-import { BOXES } from './Boxes';
-import { TRIKI_ARR } from './Triki'
+import { BOXES, TRIKI_ARR } from './utility';
 
 //Inicializa el lienzo de canvas
 const tablerocanvas: HTMLCanvasElement = document.querySelector("#lienzo");
