@@ -33,7 +33,7 @@ const drawCasillas = () => {
      * @param {*} x Posición inicial en X
      * @param {*} y Posición inicial en Y
      */
-    let draw = (x: number, y:number) => {
+    let draw = (x: number, y: number) => {
         ctx.beginPath();
 
         //Círculos
@@ -178,18 +178,23 @@ const init = () => {
 
     //Dibuja
     draw();
-
+ 
     /**
-     * Posición X - Y para el mouse
-     * @param {*} canvas Canvas
-     * @param {*} evt Evento
-     * @param {boolean} Indica si restamos el radio
+     * Obtener posición
+     * @param table Canvas de fichas
+     * @param evt Eventos
+     * @param ind Indicador de radio
+     * @returns Object
      */
-    let oMousePos = (canvas: HTMLCanvasElement, evt: MouseEvent, ind = true) => {
-        var ClientRect = canvas.getBoundingClientRect();
+    let oMousePos = (table: HTMLCanvasElement, evt: MouseEvent | TouchEvent, ind = true) => {
+        evt.preventDefault();
+        const ClientRect = table.getBoundingClientRect();
+        const clientX: number = (evt.type.includes('touch')) ? (<TouchEvent>evt).changedTouches[0].clientX : (<MouseEvent>evt).clientX;
+        const clientY: number = (evt.type.includes('touch')) ? (<TouchEvent>evt).changedTouches[0].clientY : (<MouseEvent>evt).clientY;
+
         return { //objeto
-            x: Math.round(evt.clientX - ClientRect.left) - ((ind) ? 10 : 0),
-            y: Math.round(evt.clientY - ClientRect.top) - ((ind) ? 10 : 0)
+            x: Math.round(clientX - ClientRect.left) - ((ind) ? 10 : 0),
+            y: Math.round(clientY - ClientRect.top) - ((ind) ? 10 : 0)
         }
     }
 
@@ -281,11 +286,12 @@ const init = () => {
         return triki;
     }
 
-    //Función anónima evento MouseMove
-    tablerocanvas.addEventListener('mousemove', (e) => {
-        if (!arrastrar) {
-            return;
-        } else {
+    /**
+     * Mueve ficha
+     * @param e Eventos mousemove | touchmove
+     */
+    const move = (e: MouseEvent | TouchEvent): void => {
+        if (arrastrar) {
 
             //Obtiene posición mouse
             let m = oMousePos(tablerocanvas, e);
@@ -299,10 +305,13 @@ const init = () => {
             });
         }
         draw();
-    });
+    };
 
-    //Función anónima evento MouseUp
-    tablerocanvas.addEventListener("mouseup", (e) => {
+    /**
+     * Levantar ficha
+     * @param e Eventos mousemove | touchmove
+     */
+    const up = (e: MouseEvent | TouchEvent): void => {
         if (arrastrar) arrastrar = false;
 
         //Obtiene posición mouse
@@ -324,10 +333,13 @@ const init = () => {
         //Valida TRIKI
         triki(j1);
         triki(j2);
-    });
+    }
 
-    //Función anónima evento MouseDown
-    tablerocanvas.addEventListener("mousedown", (e) => {
+    /**
+     * Soltar ficha
+     * @param e Eventos mousemove | touchmove
+     */
+    const down = (e: MouseEvent | TouchEvent): void => {
         arrastrar = true;
         j1.resetMove();
         j2.resetMove();
@@ -350,7 +362,19 @@ const init = () => {
                 f.move = true;
             }
         });
-    });
+    }
+
+    //Función anónima evento MouseMove / TouchMove
+    tablerocanvas.addEventListener('mousemove', e => move(e));
+    tablerocanvas.addEventListener("touchmove", e => move(e));
+
+    //Función anónima evento MouseUp / TouchEnd
+    tablerocanvas.addEventListener('mouseup', e => up(e));
+    tablerocanvas.addEventListener("touchend", e => up(e));
+
+    //Función anónima evento MouseDown / TouchStart
+    tablerocanvas.addEventListener("mousedown", e => down(e));
+    tablerocanvas.addEventListener("touchstart", e => down(e));
 
     //Función anónima evento DblClick
     tablerocanvas.addEventListener("dblclick", (e) => {
@@ -379,7 +403,7 @@ const init = () => {
 
         draw();
     });
-  
+
 }
 
 //Inicializa
