@@ -16,7 +16,7 @@ body {
 }
 
 #contenedor {
-    width: 1000px;
+    width: min(1000px, 96vw);
     max-width: 96vw;
     margin: 20px auto;
     display: flex;
@@ -210,6 +210,7 @@ body {
     font-weight: 800;
     letter-spacing: 2px;
     background: linear-gradient(90deg, #38bdf8, #818cf8);
+    background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     margin-bottom: 4px;
@@ -221,6 +222,7 @@ body {
     color: #cbd5e1;
     min-height: 20px;
     transition: color 0.2s ease;
+    display: none;
 }
 
 /* ─────────────────────────────────────────────
@@ -228,8 +230,8 @@ body {
    ───────────────────────────────────────────── */
 .canvas-wrapper {
     position: relative;
-    width: 1000px;
-    height: 500px;
+    width: 100%;
+    aspect-ratio: 2 / 1;
     background: #000;
     border-radius: 12px;
     overflow: hidden;
@@ -239,8 +241,8 @@ body {
 
 #lienzo {
     display: block;
-    width: 1000px;
-    height: 500px;
+    width: 100%;
+    height: 100%;
     touch-action: none;
     user-select: none;
     -webkit-user-select: none;
@@ -257,6 +259,7 @@ body {
 }
 
 .btn {
+    min-height: 40px;
     padding: 8px 18px;
     font-size: 13px;
     font-weight: 600;
@@ -307,9 +310,315 @@ body.fullscreen-mode .canvas-wrapper {
     width: 100%;
     flex: 1;
     height: auto;
+    min-height: 0;
+    aspect-ratio: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 body.fullscreen-mode #lienzo {
     width: 100%;
-    height: 100%;
+    height: auto;
+    max-height: 100%;
+    aspect-ratio: 2 / 1;
+}
+
+@media (max-width: 700px) {
+    body {
+        align-items: flex-start;
+    }
+
+    #contenedor {
+        width: calc(100% - 24px);
+        max-width: 1000px;
+        margin: 12px auto;
+        gap: 10px;
+    }
+
+    .hud-container {
+        display: grid;
+        grid-template-areas:
+            "status status"
+            "player1 player2";
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+        padding: 12px;
+    }
+
+    .status-panel {
+        grid-area: status;
+    }
+
+    .player-card {
+        display: grid;
+        grid-area: auto;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 6px;
+        padding: 8px;
+    }
+
+    .player-card.player-1 {
+        grid-area: player1;
+    }
+
+    .player-card.player-2 {
+        grid-area: player2;
+    }
+
+    .player-card.active {
+        transform: none;
+    }
+
+    .ficha-preview {
+        grid-column: 1;
+        grid-row: 1;
+    }
+
+    .player-info {
+        grid-column: 2;
+        grid-row: 1;
+        min-width: 0;
+    }
+
+    .player-name,
+    .player-color-label {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .triki-score-badge {
+        grid-column: 1;
+        grid-row: 2;
+        justify-content: center;
+        margin: 0;
+        padding: 3px 5px;
+    }
+
+    .fichas-badge {
+        grid-column: 2;
+        grid-row: 2;
+        justify-content: center;
+        padding: 3px 5px;
+    }
+
+    .turn-badge {
+        grid-column: 1 / -1;
+        grid-row: 3;
+        text-align: center;
+        letter-spacing: 0.3px;
+        padding: 5px 3px;
+    }
+
+    .game-title {
+        font-size: 17px;
+        touch-action: manipulation;
+        user-select: none;
+        -webkit-user-select: none;
+    }
+
+    .status-message {
+        font-size: 12px;
+    }
+
+    .controls-bar {
+        display: none;
+    }
+
+    .btn {
+        flex: 1;
+        padding: 8px 10px;
+        font-size: 12px;
+    }
+
+}
+
+@media (max-width: 380px) {
+    .hud-container {
+        gap: 8px;
+        padding: 10px;
+    }
+
+    .player-card {
+        padding: 7px 5px;
+    }
+
+    .player-name {
+        font-size: 13px;
+    }
+
+    .player-color-label {
+        font-size: 10px;
+    }
+
+    .triki-label,
+    .fichas-label {
+        font-size: 9px;
+    }
+}
+
+@media (orientation: landscape) and (max-height: 600px) {
+    body {
+        align-items: stretch;
+        min-height: 100vh;
+        min-height: 100dvh;
+    }
+
+    #contenedor {
+        width: 100%;
+        max-width: none;
+        height: 100vh;
+        height: 100dvh;
+        min-height: 0;
+        margin: 0;
+        padding: max(6px, env(safe-area-inset-top))
+            max(8px, env(safe-area-inset-right))
+            max(6px, env(safe-area-inset-bottom))
+            max(8px, env(safe-area-inset-left));
+        gap: 4px;
+    }
+
+    .hud-container {
+        display: grid;
+        grid-template-areas: "player1 status player2";
+        grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+        gap: 6px;
+        padding: 4px 6px;
+    }
+
+    .player-card,
+    .player-card.player-1,
+    .player-card.player-2 {
+        display: grid;
+        grid-template-columns: 18px minmax(0, 1fr) auto auto auto;
+        grid-template-rows: auto;
+        align-items: center;
+        gap: 4px;
+        min-width: 0;
+        padding: 4px 6px;
+    }
+
+    .player-card.player-1 {
+        grid-area: player1;
+    }
+
+    .player-card.player-2 {
+        grid-area: player2;
+    }
+
+    .player-card.active {
+        transform: none;
+    }
+
+    .ficha-preview {
+        grid-column: 1;
+        grid-row: 1;
+        width: 18px;
+        height: 18px;
+    }
+
+    .player-info {
+        grid-column: 2;
+        grid-row: 1;
+        min-width: 0;
+    }
+
+    .player-name {
+        font-size: 13px;
+        letter-spacing: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .player-color-label {
+        display: none;
+    }
+
+    .triki-score-badge {
+        grid-column: 3;
+        grid-row: 1;
+        gap: 2px;
+        margin: 0;
+        padding: 2px 4px;
+        font-size: 10px;
+    }
+
+    .triki-icon {
+        font-size: 10px;
+    }
+
+    .triki-count {
+        font-size: 12px;
+    }
+
+    .triki-label,
+    .fichas-label {
+        display: none;
+    }
+
+    .fichas-badge {
+        grid-column: 4;
+        grid-row: 1;
+        gap: 2px;
+        padding: 2px 4px;
+    }
+
+    .fichas-count {
+        font-size: 11px;
+    }
+
+    .turn-badge {
+        grid-column: 5;
+        grid-row: 1;
+        padding: 3px 4px;
+        font-size: 8px;
+        text-align: center;
+        white-space: nowrap;
+    }
+
+    .status-panel {
+        grid-area: status;
+        flex: none;
+    }
+
+    .game-title {
+        margin: 0;
+        font-size: 13px;
+        letter-spacing: 0.5px;
+        white-space: nowrap;
+        touch-action: manipulation;
+        user-select: none;
+        -webkit-user-select: none;
+    }
+
+    .canvas-wrapper {
+        display: flex;
+        flex: 1;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: auto;
+        min-height: 0;
+        aspect-ratio: auto;
+        container-type: size;
+    }
+
+    #lienzo,
+    body.fullscreen-mode #lienzo {
+        width: min(100cqw, 200cqh);
+        height: min(50cqw, 100cqh);
+        aspect-ratio: 2 / 1;
+    }
+
+    .controls-bar {
+        display: none;
+    }
+
+    .btn {
+        min-height: 28px;
+        padding: 4px 9px;
+        font-size: 10px;
+    }
 }

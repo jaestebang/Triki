@@ -13,14 +13,11 @@ function setupHiDPI(canvas: HTMLCanvasElement): CanvasRenderingContext2D {
     const cssW = canvas.clientWidth  || parseInt(canvas.getAttribute('width') || '1000',  10);
     const cssH = canvas.clientHeight || parseInt(canvas.getAttribute('height') || '500', 10);
 
-    canvas.width  = cssW * dpr;
-    canvas.height = cssH * dpr;
-
-    canvas.style.width  = `${cssW}px`;
-    canvas.style.height = `${cssH}px`;
+    canvas.width  = Math.round(cssW * dpr);
+    canvas.height = Math.round(cssH * dpr);
 
     const ctx = canvas.getContext('2d')!;
-    ctx.scale(dpr, dpr);
+    ctx.setTransform(canvas.width / 1000, 0, 0, canvas.height / 500, 0, 0);
     return ctx;
 }
 
@@ -43,6 +40,7 @@ const fichasJ2Elem   = document.querySelector<HTMLSpanElement>('#fichas-j2');
 const statusMessage  = document.querySelector<HTMLDivElement>('#status-message');
 const btnReiniciar   = document.querySelector<HTMLButtonElement>('#btnReiniciar');
 const btnAmpliar     = document.querySelector<HTMLButtonElement>('#btnAmpliar');
+const gameTitle      = document.querySelector<HTMLHeadingElement>('.game-title');
 
 // Constantes
 const LINEWIDTH   = 2;
@@ -51,6 +49,7 @@ const RADIUS      = 10;
 
 // Estado
 const state = new GameState();
+let resultadoTimeout: number | undefined;
 
 // ─────────────────────────────────────────────
 // 3. SINCRONIZACIÓN DE LA UI (HUD)
@@ -59,7 +58,7 @@ const state = new GameState();
 const actualizarHUD = (): void => {
     if (!cardJ1 || !cardJ2 || !badgeJ1 || !badgeJ2 || !statusMessage) return;
 
-    if (state.juegoTerminado) {
+    if (state.juegoTerminado && state.mostrarResultado) {
         if (state.esEmpate) {
             badgeJ1.textContent = '🤝 EMPATE';
             badgeJ2.textContent = '🤝 EMPATE';
@@ -76,18 +75,18 @@ const actualizarHUD = (): void => {
             cardJ2.classList.add('active');
             cardJ1.classList.remove('active');
         }
-    } else {
+    } else if (!state.juegoTerminado) {
         const esJ1 = state.turnoActual === 1;
 
         if (esJ1) {
             cardJ1.classList.add('active');
             cardJ2.classList.remove('active');
-            badgeJ1.textContent = state.modoEliminar ? 'ELIMINAR FICHA' : 'TURNO ACTIVO';
+            badgeJ1.textContent = state.modoEliminar ? 'ELIMINAR' : 'ACTIVO';
             badgeJ2.textContent = 'EN ESPERA';
         } else {
             cardJ2.classList.add('active');
             cardJ1.classList.remove('active');
-            badgeJ2.textContent = state.modoEliminar ? 'ELIMINAR FICHA' : 'TURNO ACTIVO';
+            badgeJ2.textContent = state.modoEliminar ? 'ELIMINAR' : 'ACTIVO';
             badgeJ1.textContent = 'EN ESPERA';
         }
     }
@@ -300,6 +299,11 @@ const drawTurnoCanvas = (): void => {
 
     // Si el juego terminó, dibuja la pantalla de fin de juego y proclamación de ganador
     if (state.juegoTerminado) {
+        if (!state.mostrarResultado) {
+            ctx.restore();
+            return;
+        }
+
         // Fondo oscuro translúcido
         ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
         ctx.fillRect(0, 0, 1000, 500);
@@ -335,83 +339,17 @@ const drawTurnoCanvas = (): void => {
         ctx.fillStyle = state.ganador?.codigo === 1 ? '#4ade80' : (state.ganador?.codigo === 2 ? '#facc15' : '#38bdf8');
         ctx.font = 'bold 18px sans-serif';
         ctx.fillText(textoGanador, px + pw / 2, py + 95);
-
-        // Resumen de trikis y fichas
-        ctx.fillStyle = '#cbd5e1';
-        ctx.font = '14px sans-serif';
-        ctx.fillText(
-            `J1 (Verde): ${state.j1.totalTrikis} ⭐ (${state.j1.fichas.length} fichas)  —  J2 (Amarillo): ${state.j2.totalTrikis} ⭐ (${state.j2.fichas.length} fichas)`,
-            px + pw / 2, py + 145
-        );
-
-        // Motivo de finalización
-        ctx.fillStyle = '#94a3b8';
-        ctx.font = '12px sans-serif';
-        ctx.fillText(
-            'Un jugador ha quedado con menos de 3 fichas en juego.',
-            px + pw / 2, py + 185
-        );
-
-        // Botón / Instrucción para reiniciar
-        ctx.fillStyle = '#38bdf8';
-        ctx.font = 'bold 13px sans-serif';
-        ctx.fillText('🔄 Haz clic en "Reiniciar Partida" para comenzar una nueva', px + pw / 2, py + 225);
-
         ctx.restore();
         return;
     }
-
-    const esJ1 = state.turnoActual === 1;
-    const colorBg = esJ1 ? '#14532d' : '#713f12';
-    const colorText = esJ1 ? '#86efac' : '#fef08a';
-    const textoTurno = esJ1 ? 'TURNO: JUGADOR 1 (VERDE)' : 'TURNO: JUGADOR 2 (AMARILLO)';
-    const textoTrikis = `⭐ Trikis | J1 (Verde): ${state.j1.totalTrikis}   J2 (Amarillo): ${state.j2.totalTrikis}`;
-
-    /*
-    // Fondo del badge en el centro superior del rectángulo central
-    ctx.fillStyle = colorBg;
-    ctx.beginPath();
-    const px = 345;
-    const py = 164;
-    const pw = 310;
-    const ph = 38;
-    if (ctx.roundRect) {
-        ctx.roundRect(px, py, pw, ph, 10);
-    } else {
-        ctx.rect(px, py, pw, ph);
-    }
-    ctx.fill();
-
-    // Borde
-    ctx.strokeStyle = colorText;
-    ctx.lineWidth = 1.5;
-    ctx.stroke();
-
-    // Punto indicador de color de turno
-    ctx.beginPath();
-    ctx.arc(px + 16, py + 14, 5, 0, 2 * Math.PI);
-    ctx.fillStyle = esJ1 ? '#22c55e' : '#eab308';
-    ctx.fill();
-
-    // Texto de turno (línea superior)
-    
-    ctx.fillStyle = colorText;
-    ctx.font = 'bold 11px sans-serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(textoTurno, px + (pw / 2) + 6, py + 14);
-    */
-
-    // Texto de trikis acumulados (línea inferior)
-    ctx.fillStyle = '#f1f5f9';
-    ctx.font = 'bold 10px sans-serif';
-    ctx.fillText(textoTrikis, px + (pw / 2), py + 28);
 
     ctx.restore();
 };
 
 /** Dibuja todas las fichas de los dos jugadores */
 const drawFichas = (j1: Player, j2: Player): void => {
+    if (state.juegoTerminado) return;
+
     const rival = state.getJugadorRival();
 
     // 1. Dibuja primero las fichas estáticas
@@ -590,9 +528,9 @@ const render = (): void => {
     drawTablero();
     drawTrikisRealizados();
     drawCasillas();
-    drawTurnoCanvas();
     drawFichas(state.j1, state.j2);
     updateAndDrawFX();
+    drawTurnoCanvas();
 };
 
 // ─────────────────────────────────────────────
@@ -644,12 +582,12 @@ const toCanvasCoords = (
 // ─────────────────────────────────────────────
 
 /** 
- * Valida si el jugador completó un nuevo Triki.
+ * Valida cuántos trikis nuevos completó el jugador en este movimiento.
  * REGLA: Si un triki ya ha sido realizado por cualquier jugador (J1 o J2)
  * en la partida, queda completamente inhabilitado y no puede volver a realizarse.
  */
-const checkTriki = (j: Player): boolean => {
-    let nuevoTriki = false;
+const checkTriki = (j: Player): number => {
+    let nuevosTrikis = 0;
 
     TRIKI_ARR.forEach(t => {
         // Si este triki ya fue realizado en la partida, queda bloqueado para ambos jugadores
@@ -666,11 +604,11 @@ const checkTriki = (j: Player): boolean => {
             // Se registra en el jugador y a nivel global de la partida
             j.setTriki(t.id);
             state.registrarTrikiGlobal(t.id, t.c, j.codigo);
-            nuevoTriki = true;
+            nuevosTrikis++;
         }
     });
 
-    return nuevoTriki;
+    return nuevosTrikis;
 };
 
 // ─────────────────────────────────────────────
@@ -708,14 +646,33 @@ const intentarEliminarFichaRival = (m: { x: number; y: number }): boolean => {
 
         rival.deleteFicha((fichaAEliminar as Ficha).id);
         state.setCasillasVacias();
-        state.modoEliminar = false;
+        state.eliminacionesPendientes--;
 
         // Regla: El juego finaliza cuando a un jugador le queden menos de 3 fichas
         const finalizo = state.verificarFinDeJuego();
 
         if (!finalizo) {
-            state.mensaje = `💥 Ficha rival en casilla ${casilla} eliminada. Turno completado.`;
-            state.cambiarTurno();
+            const fichasRivalesEnTablero = rival.fichas.filter(f => f.c !== null).length;
+            if (state.eliminacionesPendientes > 0 && fichasRivalesEnTablero > 0) {
+                state.modoEliminar = true;
+                state.mensaje = `💥 Ficha rival en casilla ${casilla} eliminada. Retira otra ficha (${state.eliminacionesPendientes} pendiente${state.eliminacionesPendientes === 1 ? '' : 's'}).`;
+            } else {
+                state.eliminacionesPendientes = 0;
+                state.modoEliminar = false;
+                state.mensaje = `💥 Ficha rival en casilla ${casilla} eliminada. Turno completado.`;
+                state.cambiarTurno();
+            }
+        } else {
+            if (resultadoTimeout !== undefined) {
+                window.clearTimeout(resultadoTimeout);
+            }
+            resultadoTimeout = window.setTimeout(() => {
+                resultadoTimeout = undefined;
+                if (state.juegoTerminado) {
+                    state.mostrarResultado = true;
+                    state.markDirty();
+                }
+            }, 700);
         }
 
         state.markDirty();
@@ -744,7 +701,7 @@ const onDown = (e: MouseEvent | TouchEvent): void => {
 
     const m = toCanvasCoords(tableroCanvas, e);
 
-    // Si está en modo de eliminar ficha rival tras un triki
+    // Si está en modo de ELIMINAR rival tras un triki
     if (state.modoEliminar) {
         const elimino = intentarEliminarFichaRival(m);
         if (!elimino) {
@@ -883,20 +840,23 @@ const onUp = (e: MouseEvent | TouchEvent): void => {
         state.setCasillasVacias();
 
         // Validar si logró un Triki
-        const logroTriki = checkTriki(jugador);
+        const nuevosTrikis = checkTriki(jugador);
 
-        if (logroTriki) {
+        if (nuevosTrikis > 0) {
             const rival = state.getJugadorRival();
             const fichasJugadasRival = rival.fichas.filter(f => f.c !== null);
+            state.eliminacionesPendientes = Math.min(nuevosTrikis, fichasJugadasRival.length);
 
             // Obtiene el último triki registrado
             const ultimoTriki = state.historialTrikis[state.historialTrikis.length - 1];
             const comboStr = ultimoTriki ? `[${ultimoTriki.casillas.join(' - ')}]` : '';
 
-            if (fichasJugadasRival.length > 0) {
+            if (state.eliminacionesPendientes > 0) {
                 state.modoEliminar = true;
-                state.mensaje = `🎉 ¡SUPER TRIKI ${comboStr} de ${jugador.nombre}! (${jugador.totalTrikis} triki${jugador.totalTrikis > 1 ? 's' : ''}). Combinación cerrada. Retira una ficha rival del tablero.`;
+                const cantidad = state.eliminacionesPendientes;
+                state.mensaje = `🎉 ¡SUPER TRIKI ${comboStr} de ${jugador.nombre}! Se formaron ${nuevosTrikis} triki${nuevosTrikis === 1 ? '' : 's'}. Retira ${cantidad} ficha${cantidad === 1 ? '' : 's'} rival${cantidad === 1 ? '' : 'es'} del tablero.`;
             } else {
+                state.modoEliminar = false;
                 state.mensaje = `🎉 ¡SUPER TRIKI ${comboStr} de ${jugador.nombre}! (${jugador.totalTrikis} triki${jugador.totalTrikis > 1 ? 's' : ''}). Combinación cerrada.`;
                 state.cambiarTurno();
             }
@@ -929,25 +889,66 @@ const onDblClick = (e: MouseEvent): void => {
 // 9. CONTROLES DE LA INTERFAZ
 // ─────────────────────────────────────────────
 
+const reiniciarPartida = (): void => {
+    if (resultadoTimeout !== undefined) {
+        window.clearTimeout(resultadoTimeout);
+        resultadoTimeout = undefined;
+    }
+    state.reiniciarJuego();
+    actualizarHUD();
+};
+
 if (btnReiniciar) {
-    btnReiniciar.addEventListener('click', () => {
-        state.reiniciarJuego();
-        actualizarHUD();
+    btnReiniciar.addEventListener('click', reiniciarPartida);
+}
+
+if (gameTitle) {
+    let ultimoToque = 0;
+
+    gameTitle.addEventListener('click', () => {
+        if (!window.matchMedia('(pointer: coarse)').matches) return;
+
+        const ahora = Date.now();
+        if (ahora - ultimoToque <= 400) {
+            ultimoToque = 0;
+            reiniciarPartida();
+        } else {
+            ultimoToque = ahora;
+
+            if (document.fullscreenElement) return;
+
+            if (document.documentElement.requestFullscreen) {
+                document.documentElement.requestFullscreen().catch(() => {
+                    if (statusMessage) {
+                        statusMessage.textContent = 'No se pudo activar pantalla completa. En iPhone/iPad, añade el juego a la pantalla de inicio desde el menú Compartir.';
+                        statusMessage.style.display = 'block';
+                    }
+                });
+            } else if (statusMessage) {
+                statusMessage.textContent = 'En iPhone/iPad, añade el juego a la pantalla de inicio desde el menú Compartir para ocultar Safari.';
+                statusMessage.style.display = 'block';
+            }
+        }
     });
 }
+
+document.addEventListener('fullscreenchange', () => {
+    document.body.classList.toggle('fullscreen-mode', Boolean(document.fullscreenElement));
+    state.markDirty();
+});
 
 if (btnAmpliar) {
     btnAmpliar.addEventListener('click', () => {
         const isFull = document.body.classList.toggle('fullscreen-mode');
         btnAmpliar.textContent = isFull ? '⛶ Reducir Canvas' : '⛶ Ampliar Canvas';
-
-        // Pequeño retardo para recalcular DPI tras la transición de layout
-        setTimeout(() => {
-            ctx = setupHiDPI(tableroCanvas);
-            state.markDirty();
-        }, 100);
     });
 }
+
+const canvasResizeObserver = new ResizeObserver(() => {
+    ctx = setupHiDPI(tableroCanvas);
+    state.markDirty();
+});
+canvasResizeObserver.observe(tableroCanvas);
 
 // ─────────────────────────────────────────────
 // 10. REGISTRO DE EVENTOS

@@ -17,6 +17,9 @@ export class GameState {
     /** Indica si se acaba de completar un Triki y se debe eliminar una ficha rival */
     public modoEliminar: boolean = false;
 
+    /** Cantidad de fichas rivales que faltan por eliminar por los trikis completados */
+    public eliminacionesPendientes: number = 0;
+
     /** Ficha que está siendo arrastrada */
     public fichaActiva: Ficha | null = null;
     public jugadorActivoArrastre: Player | null = null;
@@ -32,6 +35,9 @@ export class GameState {
 
     /** Indica si el juego ha finalizado */
     public juegoTerminado: boolean = false;
+
+    /** Indica si ya se debe mostrar el panel final al jugador */
+    public mostrarResultado: boolean = false;
 
     /** Jugador ganador de la partida (null si fue empate o sigue activa) */
     public ganador: Player | null = null;
@@ -55,11 +61,13 @@ export class GameState {
         this.j2 = new Player();
         this.turnoActual = 1;
         this.modoEliminar = false;
+        this.eliminacionesPendientes = 0;
         this.fichaActiva = null;
         this.jugadorActivoArrastre = null;
         this.trikisRealizadosGlobal = [];
         this.historialTrikis = [];
         this.juegoTerminado = false;
+        this.mostrarResultado = false;
         this.ganador = null;
         this.esEmpate = false;
         this.mensaje = 'Turno del Jugador 1 (Verde): Arrastra una ficha verde';
@@ -77,7 +85,9 @@ export class GameState {
     verificarFinDeJuego(): boolean {
         if (this.j1.fichas.length < 3 || this.j2.fichas.length < 3) {
             this.juegoTerminado = true;
+            this.mostrarResultado = false;
             this.modoEliminar = false;
+            this.eliminacionesPendientes = 0;
 
             // Determinar ganador por mayor número de trikis
             if (this.j1.totalTrikis > this.j2.totalTrikis) {
@@ -130,14 +140,14 @@ export class GameState {
     }
 
     /**
-     * Obtiene el jugador que tiene el turno activo
+     * Obtiene el jugador que tiene el ACTIVO
      */
     getJugadorEnTurno(): Player {
         return (this.turnoActual === 1) ? this.j1 : this.j2;
     }
 
     /**
-     * Obtiene el jugador rival al turno activo
+     * Obtiene el jugador rival al ACTIVO
      */
     getJugadorRival(): Player {
         return (this.turnoActual === 1) ? this.j2 : this.j1;
