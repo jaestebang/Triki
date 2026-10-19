@@ -26,4 +26,13 @@ export class SingletonIdPlayer {
         
         return SingletonIdPlayer.instance;
     }
+
+    /**
+     * Reinicia el iterador de jugadores a 0
+     */
+    public static reset(): void {
+        if (SingletonIdPlayer.instance) {
+            SingletonIdPlayer.instance.iterator = 0;
+        }
+    }
 }

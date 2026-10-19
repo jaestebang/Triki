@@ -1,26 +1,72 @@
 <!doctype html>
 <html lang="es">
 <head>
-  <meta charset="utf-8">
-    <title>
-        Super TRIKI
-    </title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Super TRIKI</title>
     <link rel="stylesheet" href="../src/assets/styles/estilos.css" type="text/css" />
-
 </head>
 
 <body>
-    <div id="vertical">
-
-    </div>
     <div id="contenedor">
-        <canvas id="lienzo" width="1000px" height="500px"></canvas>
-        <canvas id="fichas" width="1000px" height="500px"></canvas>
-        <img id="boton" src="../src/assets/img/boton.png" style="visibility: hidden;">
-        <button id="btnAmpliar" onclick="ampliar()">Ampliar Canvas</button>
+        <!-- Barra HUD de Turnos y Jugadores -->
+        <header class="hud-container">
+            <div class="player-card player-1 active" id="card-j1">
+                <div class="ficha-preview green"></div>
+                <div class="player-info">
+                    <span class="player-name">Jugador 1</span>
+                    <span class="player-color-label">Fichas Verdes</span>
+                </div>
+                <div class="triki-score-badge green-badge" title="Trikis realizados">
+                    <span class="triki-icon">⭐</span>
+                    <span class="triki-count" id="trikis-j1">0</span>
+                    <span class="triki-label">Trikis</span>
+                </div>
+                <div class="fichas-badge" id="fichas-badge-j1" title="Fichas restantes">
+                    <span class="fichas-count" id="fichas-j1">9</span>
+                    <span class="fichas-label">fichas</span>
+                </div>
+                <div class="turn-badge" id="badge-j1">TURNO ACTIVO</div>
+            </div>
+
+            <div class="status-panel">
+                <h1 class="game-title">SUPER TRIKI</h1>
+                <div class="status-message" id="status-message">
+                    Turno del Jugador 1 (Verde): Arrastra una ficha verde
+                </div>
+            </div>
+
+            <div class="player-card player-2" id="card-j2">
+                <div class="ficha-preview yellow"></div>
+                <div class="player-info">
+                    <span class="player-name">Jugador 2</span>
+                    <span class="player-color-label">Fichas Amarillas</span>
+                </div>
+                <div class="triki-score-badge yellow-badge" title="Trikis realizados">
+                    <span class="triki-icon">⭐</span>
+                    <span class="triki-count" id="trikis-j2">0</span>
+                    <span class="triki-label">Trikis</span>
+                </div>
+                <div class="fichas-badge" id="fichas-badge-j2" title="Fichas restantes">
+                    <span class="fichas-count" id="fichas-j2">9</span>
+                    <span class="fichas-label">fichas</span>
+                </div>
+                <div class="turn-badge" id="badge-j2">EN ESPERA</div>
+            </div>
+        </header>
+
+        <!-- Lienzo del Juego -->
+        <div class="canvas-wrapper">
+            <canvas id="lienzo" width="1000px" height="500px"></canvas>
+        </div>
+
+        <!-- Controles inferiores -->
+        <footer class="controls-bar">
+            <button id="btnReiniciar" class="btn btn-secondary">🔄 Reiniciar Partida</button>
+            <button id="btnAmpliar" class="btn btn-primary">⛶ Ampliar Canvas</button>
+        </footer>
     </div>
 
     <script src="../src/ts/drawCanvas.ts"></script>
 </body>
-
 </html>

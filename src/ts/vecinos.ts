@@ -1,124 +1,55 @@
-var vecinosArr = [{
-    Id: 1,
-    x1: 'A',
-    x2: 'B',
-    x3: 'C',
-},
-{
-    Id: 2,
-    x1: 'A',
-    x2: 'D',
-    x3: 'G',
-},
-{
-    Id: 3,
-    x1: 'A',
-    x2: 'J',
-    x3: 'V',
-},
-{
-    Id: 4,
-    x1: 'B',
-    x2: 'E',
-    x3: 'H',
+/**
+ * Mapa de relaciones de vecindad entre casillas del Super Triki.
+ * Cada casilla solo está conectada con sus casillas adyacentes por las líneas del tablero.
+ */
+export const VECINOS: Record<string, string[]> = {
+    // Rectángulo Exterior
+    A: ['B', 'J', 'D'],
+    B: ['A', 'C', 'E'],
+    C: ['B', 'O', 'F'],
+    J: ['A', 'V', 'K'],
+    O: ['C', 'X', 'N'],
+    V: ['J', 'W', 'S'],
+    W: ['V', 'X', 'T'],
+    X: ['O', 'W', 'U'],
 
-},
-{
-    Id: 5,
-    x1: 'C',
-    x2: 'F',
-    x3: 'I',
-},
-{
-    Id: 6,
-    x1: 'C',
-    x2: 'O',
-    x3: 'X',
-},
-{
-    Id: 7,
-    x1: 'D',
-    x2: 'E',
-    x3: 'F',
-},
-{
-    Id: 8,
-    x1: 'D',
-    x2: 'K',
-    x3: 'S',
+    // Rectángulo Intermedio
+    D: ['A', 'G', 'E', 'K'],
+    E: ['B', 'H', 'D', 'F'],
+    F: ['C', 'I', 'E', 'N'],
+    K: ['D', 'S', 'J', 'L'],
+    N: ['F', 'U', 'M', 'O'],
+    S: ['K', 'T', 'P', 'V'],
+    T: ['Q', 'W', 'S', 'U'],
+    U: ['N', 'T', 'R', 'X'],
 
+    // Rectángulo Interior
+    G: ['D', 'H', 'L'],
+    H: ['E', 'G', 'I'],
+    I: ['F', 'H', 'M'],
+    L: ['G', 'P', 'K'],
+    M: ['I', 'R', 'N'],
+    P: ['L', 'Q', 'S'],
+    Q: ['P', 'R', 'T'],
+    R: ['M', 'Q', 'U']
+};
 
+/**
+ * Comprueba si dos casillas son vecinas adyacentes conectadas
+ * @param c1 Código de casilla 1 (ej: 'D')
+ * @param c2 Código de casilla 2 (ej: 'E')
+ * @returns true si son vecinas directas
+ */
+export const sonVecinos = (c1: string, c2: string): boolean => {
+    if (!c1 || !c2 || !VECINOS[c1]) return false;
+    return VECINOS[c1].indexOf(c2) >= 0;
+};
 
-},
-{
-    Id: 9,
-    x1: 'F',
-    x2: 'N',
-    x3: 'U',
-},
-{
-    Id: 10,
-    x1: 'G',
-    x2: 'H',
-    x3: 'I',
-},
-{
-    Id: 11,
-    x1: 'G',
-    x2: 'L',
-    x3: 'P',
-},
-{
-    Id: 12,
-    x1: 'I',
-    x2: 'M',
-    x3: 'R',
-},
-{
-    Id: 13,
-    x1: 'J',
-    x2: 'K',
-    x3: 'L',
-},
-{
-    Id: 14,
-    x1: 'M',
-    x2: 'N',
-    x3: 'O',
-},
-{
-    Id: 15,
-    x1: 'P',
-    x2: 'Q',
-    x3: 'R',
-},
-{
-    Id: 16,
-    x1: 'P',
-    x2: 'S',
-    x3: 'V',
-},
-{
-    Id: 17,
-    x1: 'S',
-    x2: 'T',
-    x3: 'U',
-},
-{
-    Id: 18,
-    x1: 'V',
-    x2: 'W',
-    x3: 'X',
-},
-{
-    Id: 19,
-    x1: 'Q',
-    x2: 'T',
-    x3: 'W',
-},
-{
-    Id: 20,
-    x1: 'R',
-    x2: 'U',
-    x3: 'X',
-}];
+/**
+ * Retorna la lista de casillas vecinas de una casilla dada
+ * @param c Código de casilla (ej: 'D')
+ * @returns Array de códigos de casillas vecinas (ej: ['A', 'G', 'E', 'K'])
+ */
+export const getVecinos = (c: string): string[] => {
+    return VECINOS[c] || [];
+};

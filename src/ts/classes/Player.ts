@@ -1,29 +1,42 @@
 import { SingletonIdPlayer } from './singleton-idplayer';
 
+export interface Ficha {
+    id: number;
+    c: string | null;
+    x: number;
+    y: number;
+    xi: number;
+    yi: number;
+    move: boolean;
+}
+
 /**
  * Clase Jugador
  */
 export class Player {
     public codigo: number;
     public color: string;
+    public colorNombre: 'verde' | 'amarillo';
+    public nombre: string;
 
-    public fichas = [];
-    public triki = [];
+    public fichas: Ficha[] = [];
+    public triki: number[] = [];
 
     public turno: boolean = false;
 
     constructor() {
-        this.codigo = SingletonIdPlayer.getInstance().iterator;;
-        this.color = (this.codigo == 1) ? "red" : "blue";
+        this.codigo = SingletonIdPlayer.getInstance().iterator;
+        this.colorNombre = (this.codigo === 1) ? 'verde' : 'amarillo';
+        this.color = (this.codigo === 1) ? '#22c55e' : '#eab308';
+        this.nombre = (this.codigo === 1) ? 'Jugador 1 (Verde)' : 'Jugador 2 (Amarillo)';
 
-        //Inicializa fichas
+        //Inicializa 9 fichas centradas
         let i = 1;
         while (i <= 9) {
             const lx = 400 + (i * 20);
-            const ly = (this.codigo == 1) ? 220 : 250;
+            const ly = (this.codigo === 1) ? 215 : 285;
 
-            /** Objeto de tipo ficha */
-            const f = {
+            const f: Ficha = {
                 id: i,
                 c: null,
                 x: lx,
@@ -39,15 +52,11 @@ export class Player {
     }
 
     /**
-     * Elimina ficha
-     * @param {*} i Número de ficha
+     * Elimina ficha por ID
+     * @param {*} id Número identificador de ficha
      */
     deleteFicha(id: number): void {
-        console.log(this.fichas);
-        this.fichas.forEach(f => {
-            if (f.id === id) this.fichas.splice(this.fichas.indexOf(f), 1);
-        });
-
+        this.fichas = this.fichas.filter(f => f.id !== id);
     }
 
     /**
@@ -83,10 +92,40 @@ export class Player {
     }
 
     /**
-     * Almacena Triki realizado
-     * @param {*} id ID Triki
+     * Almacena Triki realizado si aún no fue registrado
+     * @param {number} id ID Triki
      */
-    setTriki(id: null) {
-        this.triki.push(id);
+    setTriki(id: number): void {
+        if (this.triki.indexOf(id) < 0) {
+            this.triki.push(id);
+        }
+    }
+
+    /**
+     * Retorna el número de trikis acumulados por el jugador
+     */
+    get totalTrikis(): number {
+        return this.triki.length;
+    }
+
+    /**
+     * Fichas que aún no han sido introducidas al tablero (en reserva)
+     */
+    get fichasEnReserva(): Ficha[] {
+        return this.fichas.filter(f => f.c === null);
+    }
+
+    /**
+     * Fichas que ya se encuentran colocadas en alguna casilla del tablero
+     */
+    get fichasEnTablero(): Ficha[] {
+        return this.fichas.filter(f => f.c !== null);
+    }
+
+    /**
+     * Indica si todas las fichas del jugador ya han entrado al tablero (Fase de Movimiento)
+     */
+    get todasFichasEnJuego(): boolean {
+        return this.fichas.length > 0 && this.fichas.every(f => f.c !== null);
     }
 }
