@@ -23,8 +23,8 @@
                     <span class="triki-count" id="trikis-j1">0</span>
                     <span class="triki-label">Trikis</span>
                 </div>
-                <div class="fichas-badge" id="fichas-badge-j1" title="Fichas restantes">
-                    <span class="fichas-count" id="fichas-j1">9</span>
+                <div class="fichas-badge" id="fichas-badge-j1" title="Fichas en el tablero">
+                    <span class="fichas-count" id="fichas-j1">0</span>
                     <span class="fichas-label">fichas</span>
                 </div>
                 <div class="turn-badge" id="badge-j1">ACTIVO</div>
@@ -46,8 +46,8 @@
                     <span class="triki-count" id="trikis-j2">0</span>
                     <span class="triki-label">Trikis</span>
                 </div>
-                <div class="fichas-badge" id="fichas-badge-j2" title="Fichas restantes">
-                    <span class="fichas-count" id="fichas-j2">9</span>
+                <div class="fichas-badge" id="fichas-badge-j2" title="Fichas en el tablero">
+                    <span class="fichas-count" id="fichas-j2">0</span>
                     <span class="fichas-label">fichas</span>
                 </div>
                 <div class="turn-badge" id="badge-j2">EN ESPERA</div>
@@ -64,6 +64,11 @@
             <button id="btnReiniciar" class="btn btn-secondary" type="button" aria-label="Reiniciar partida" title="Reiniciar partida">🔄 Reiniciar Partida</button>
             <button id="btnAmpliar" class="btn btn-primary">⛶ Ampliar Canvas</button>
         </footer>
+    </div>
+
+    <div id="fullscreen-prompt" class="fullscreen-prompt" role="status" aria-live="polite" hidden>
+        <p id="fullscreen-prompt-message"></p>
+        <button id="btnFullscreen" class="btn btn-primary" type="button">Entrar a pantalla completa</button>
     </div>
 
     <script src="../src/ts/drawCanvas.ts"></script>

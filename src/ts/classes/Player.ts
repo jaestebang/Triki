@@ -21,6 +21,7 @@ export class Player {
 
     public fichas: Ficha[] = [];
     public triki: number[] = [];
+    private fichasColocadas = 0;
 
     public turno: boolean = false;
 
@@ -123,9 +124,16 @@ export class Player {
     }
 
     /**
+     * Registra una ficha introducida al tablero, aunque luego sea eliminada.
+     */
+    registrarFichaColocada(): void {
+        this.fichasColocadas++;
+    }
+
+    /**
      * Indica si todas las fichas del jugador ya han entrado al tablero (Fase de Movimiento)
      */
     get todasFichasEnJuego(): boolean {
-        return this.fichas.length > 0 && this.fichas.every(f => f.c !== null);
+        return this.fichasColocadas >= 9;
     }
 }

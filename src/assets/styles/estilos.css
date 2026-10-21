@@ -290,6 +290,10 @@ body {
     transform: translateY(-1px);
 }
 
+.fullscreen-prompt {
+    display: none;
+}
+
 /* ─────────────────────────────────────────────
    MODO EXPANDIDO
    ───────────────────────────────────────────── */
@@ -607,8 +611,10 @@ body.fullscreen-mode #lienzo {
 
     #lienzo,
     body.fullscreen-mode #lienzo {
-        width: min(100cqw, 200cqh);
-        height: min(50cqw, 100cqh);
+        width: auto;
+        height: auto;
+        max-width: 100%;
+        max-height: 100%;
         aspect-ratio: 2 / 1;
     }
 
@@ -620,5 +626,67 @@ body.fullscreen-mode #lienzo {
         min-height: 28px;
         padding: 4px 9px;
         font-size: 10px;
+    }
+}
+
+@media (max-width: 700px) and (orientation: portrait) {
+    body {
+        min-height: 100vh;
+        min-height: 100dvh;
+        overflow: hidden;
+    }
+
+    #contenedor {
+        display: none;
+    }
+
+    body::after {
+        content: "↻\A Gira tu móvil en horizontal para jugar";
+        position: fixed;
+        inset: 0;
+        z-index: 10;
+        display: grid;
+        place-content: center;
+        gap: 16px;
+        padding: 24px;
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        color: #f8fafc;
+        font-size: 20px;
+        font-weight: 700;
+        line-height: 1.5;
+        text-align: center;
+        white-space: pre-line;
+    }
+}
+
+@media (pointer: coarse) and (orientation: landscape) {
+    .fullscreen-prompt.is-visible {
+        position: fixed;
+        right: max(12px, env(safe-area-inset-right));
+        bottom: max(12px, env(safe-area-inset-bottom));
+        z-index: 20;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        max-width: min(460px, calc(100vw - 24px));
+        padding: 10px 12px;
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        border-radius: 12px;
+        background: rgba(15, 23, 42, 0.96);
+        color: #f8fafc;
+        box-shadow: 0 8px 28px rgba(0, 0, 0, 0.4);
+        font-size: 12px;
+    }
+
+    .fullscreen-prompt p {
+        flex: 1;
+    }
+
+    .fullscreen-prompt .btn {
+        flex: none;
+        min-height: 36px;
+        padding: 6px 10px;
+        font-size: 12px;
+        white-space: nowrap;
     }
 }

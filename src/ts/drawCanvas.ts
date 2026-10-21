@@ -41,15 +41,33 @@ const statusMessage  = document.querySelector<HTMLDivElement>('#status-message')
 const btnReiniciar   = document.querySelector<HTMLButtonElement>('#btnReiniciar');
 const btnAmpliar     = document.querySelector<HTMLButtonElement>('#btnAmpliar');
 const gameTitle      = document.querySelector<HTMLHeadingElement>('.game-title');
+const fullscreenPrompt = document.querySelector<HTMLDivElement>('#fullscreen-prompt');
+const fullscreenPromptMessage = document.querySelector<HTMLParagraphElement>('#fullscreen-prompt-message');
+const btnFullscreen = document.querySelector<HTMLButtonElement>('#btnFullscreen');
 
 // Constantes
 const LINEWIDTH   = 2;
 const STROKESTYLE = '#1e293b';
 const RADIUS      = 10;
+const mobileLandscape = window.matchMedia('(pointer: coarse) and (orientation: landscape)');
+const mobileBoardScale = (): number => mobileLandscape.matches ? 1.5 : 1;
 
 // Estado
 const state = new GameState();
 let resultadoTimeout: number | undefined;
+
+const ajustarPosicionesReserva = (): void => {
+    if (state.arrastrar) return;
+
+    [state.j1, state.j2].forEach(jugador => {
+        jugador.fichasEnReserva.forEach(ficha => {
+            ficha.x = mobileLandscape.matches ? 500 : 400 + ficha.id * 20;
+            ficha.y = jugador.codigo === 1 ? 215 : 285;
+            ficha.xi = ficha.x;
+            ficha.yi = ficha.y;
+        });
+    });
+};
 
 // ─────────────────────────────────────────────
 // 3. SINCRONIZACIÓN DE LA UI (HUD)
@@ -95,9 +113,9 @@ const actualizarHUD = (): void => {
     if (trikisJ1Elem) trikisJ1Elem.textContent = `${state.j1.totalTrikis}`;
     if (trikisJ2Elem) trikisJ2Elem.textContent = `${state.j2.totalTrikis}`;
 
-    // Actualiza el número de fichas restantes de cada jugador
-    if (fichasJ1Elem) fichasJ1Elem.textContent = `${state.j1.fichas.length}`;
-    if (fichasJ2Elem) fichasJ2Elem.textContent = `${state.j2.fichas.length}`;
+    // Actualiza el número de fichas que cada jugador tiene en el tablero
+    if (fichasJ1Elem) fichasJ1Elem.textContent = `${state.j1.fichasEnTablero.length}`;
+    if (fichasJ2Elem) fichasJ2Elem.textContent = `${state.j2.fichasEnTablero.length}`;
 
     statusMessage.textContent = state.mensaje;
 };
@@ -113,23 +131,25 @@ const drawFicha = (
     y: number,
     colorJugador: 'verde' | 'amarillo',
     isMoving: boolean,
-    isTargetable: boolean = false
+    isTargetable: boolean = false,
+    scaleMultiplier: number = 1
 ): void => {
     c.save();
 
-    const r = isMoving ? 13 : 11;
+    const escala = mobileBoardScale() * scaleMultiplier;
+    const r = (isMoving ? 13 : 11) * escala;
 
     // Sombra proyectada
     if (isMoving) {
         c.shadowColor = 'rgba(0, 0, 0, 0.5)';
-        c.shadowBlur = 12;
-        c.shadowOffsetX = 3;
-        c.shadowOffsetY = 6;
+        c.shadowBlur = 12 * escala;
+        c.shadowOffsetX = 3 * escala;
+        c.shadowOffsetY = 6 * escala;
     } else {
         c.shadowColor = 'rgba(0, 0, 0, 0.3)';
-        c.shadowBlur = 4;
-        c.shadowOffsetX = 1;
-        c.shadowOffsetY = 2;
+        c.shadowBlur = 4 * escala;
+        c.shadowOffsetX = escala;
+        c.shadowOffsetY = 2 * escala;
     }
 
     // Halo luminoso si la ficha está siendo arrastrada
@@ -139,7 +159,7 @@ const drawFicha = (
         c.strokeStyle = (colorJugador === 'verde')
             ? 'rgba(74, 222, 128, 0.85)'
             : 'rgba(250, 204, 21, 0.85)';
-        c.lineWidth = 3;
+        c.lineWidth = 3 * escala;
         c.stroke();
     }
 
@@ -148,8 +168,8 @@ const drawFicha = (
         c.beginPath();
         c.arc(x, y, r + 5, 0, 2 * Math.PI);
         c.strokeStyle = '#ef4444';
-        c.lineWidth = 2.5;
-        if (c.setLineDash) c.setLineDash([4, 3]);
+        c.lineWidth = 2.5 * escala;
+        if (c.setLineDash) c.setLineDash([4 * escala, 3 * escala]);
         c.stroke();
         if (c.setLineDash) c.setLineDash([]);
     }
@@ -181,14 +201,14 @@ const drawFicha = (
     c.fill();
 
     // Borde exterior nítido
-    c.lineWidth = 1.5;
+    c.lineWidth = 1.5 * escala;
     c.strokeStyle = (colorJugador === 'verde') ? '#14532d' : '#713f12';
     c.stroke();
 
     // Aro interior decorativo
     c.beginPath();
     c.arc(x, y, r * 0.55, 0, 2 * Math.PI);
-    c.lineWidth = 1;
+    c.lineWidth = escala;
     c.strokeStyle = (colorJugador === 'verde')
         ? 'rgba(255, 255, 255, 0.45)'
         : 'rgba(255, 255, 255, 0.6)';
@@ -199,6 +219,7 @@ const drawFicha = (
 
 /** Dibuja las casillas del tablero */
 const drawCasillas = (): void => {
+    const escala = mobileBoardScale();
     // Si se está arrastrando una ficha que ya está en el tablero,
     // identificamos sus casillas vecinas disponibles
     const origenFicha = state.fichaActiva?.c;
@@ -209,9 +230,9 @@ const drawCasillas = (): void => {
         const esDestinoVecino = esFaseVecinos && (vecinosValidos.indexOf(box.c) >= 0) && !box.b;
 
         ctx.beginPath();
-        ctx.arc(box.x, box.y, RADIUS, 0, 2 * Math.PI, false);
+        ctx.arc(box.x, box.y, RADIUS * escala, 0, 2 * Math.PI, false);
 
-        ctx.lineWidth   = esDestinoVecino ? 3 : 2.5;
+        ctx.lineWidth   = (esDestinoVecino ? 3 : 2.5) * escala;
         ctx.strokeStyle = esDestinoVecino ? '#22c55e' : STROKESTYLE;
         ctx.fillStyle   = esDestinoVecino ? '#dcfce7' : (box.b ? '#94a3b8' : '#e2e8f0');
         ctx.fill();
@@ -220,15 +241,15 @@ const drawCasillas = (): void => {
         // Si es casilla vecina válida, dibujamos halo luminoso
         if (esDestinoVecino) {
             ctx.beginPath();
-            ctx.arc(box.x, box.y, RADIUS + 4, 0, 2 * Math.PI, false);
-            ctx.lineWidth = 2;
+            ctx.arc(box.x, box.y, (RADIUS + 4) * escala, 0, 2 * Math.PI, false);
+            ctx.lineWidth = 2 * escala;
             ctx.strokeStyle = 'rgba(34, 197, 94, 0.75)';
             ctx.stroke();
         }
 
         // Letra de la casilla para orientación
         ctx.fillStyle = esDestinoVecino ? '#15803d' : '#475569';
-        ctx.font = 'bold 9px sans-serif';
+        ctx.font = `bold ${9 * escala}px sans-serif`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText(box.c, box.x, box.y);
@@ -351,15 +372,26 @@ const drawFichas = (j1: Player, j2: Player): void => {
     if (state.juegoTerminado) return;
 
     const rival = state.getJugadorRival();
+    const jugadorEnTurno = state.getJugadorEnTurno();
+    const esFichaVisible = (jugador: Player, ficha: Ficha): boolean => {
+        if (ficha.c !== null || !mobileLandscape.matches) return true;
+        return !state.modoEliminar
+            && jugador === jugadorEnTurno
+            && jugador.fichasEnReserva[0] === ficha;
+    };
 
     // 1. Dibuja primero las fichas estáticas
     j1.fichas.forEach(f => {
         const esTarget = state.modoEliminar && (rival === j1) && (f.c !== null);
-        if (!f.move) drawFicha(ctx, f.x, f.y, 'verde', false, esTarget);
+        if (!f.move && esFichaVisible(j1, f)) {
+            drawFicha(ctx, f.x, f.y, 'verde', false, esTarget, f.c === null ? 0.65 : 1);
+        }
     });
     j2.fichas.forEach(f => {
         const esTarget = state.modoEliminar && (rival === j2) && (f.c !== null);
-        if (!f.move) drawFicha(ctx, f.x, f.y, 'amarillo', false, esTarget);
+        if (!f.move && esFichaVisible(j2, f)) {
+            drawFicha(ctx, f.x, f.y, 'amarillo', false, esTarget, f.c === null ? 0.65 : 1);
+        }
     });
 
     // 2. Dibuja al final la ficha en movimiento para que quede siempre encima
@@ -625,7 +657,7 @@ const intentarEliminarFichaRival = (m: { x: number; y: number }): boolean => {
 
     rival.fichas.forEach(f => {
         const dist = Math.hypot(m.x - f.x, m.y - f.y);
-        if (dist <= 18) {
+        if (dist <= 18 * mobileBoardScale()) {
             if (f.c !== null) {
                 // Ficha válida: ya está en el tablero
                 fichaAEliminar = f;
@@ -718,18 +750,25 @@ const onDown = (e: MouseEvent | TouchEvent): void => {
     let fichaSeleccionada: Ficha | null = null;
     jugador.fichas.forEach(f => {
         const dist = Math.hypot(m.x - f.x, m.y - f.y);
-        if (dist <= 16) {
+        const radioSeleccion = mobileLandscape.matches && f.c === null ? 16 : 16 * mobileBoardScale();
+        if (dist <= radioSeleccion) {
             fichaSeleccionada = f;
         }
     });
 
     if (fichaSeleccionada) {
+        if (fichaSeleccionada.c !== null && !jugador.todasFichasEnJuego) {
+            state.mensaje = `${jugador.nombre}: Debes poner tus 9 fichas en juego antes de moverlas.`;
+            state.markDirty();
+            return;
+        }
+
         state.arrastrar = true;
         state.fichaActiva = fichaSeleccionada;
         state.jugadorActivoArrastre = jugador;
         (fichaSeleccionada as Ficha).move = true;
 
-        if (fichaSeleccionada.c !== null && jugador.todasFichasEnJuego) {
+        if (fichaSeleccionada.c !== null) {
             const vecinosList = getVecinos(fichaSeleccionada.c).join(' - ');
             state.mensaje = `${jugador.nombre}: Mueve desde ${fichaSeleccionada.c} a sus casillas vecinas [${vecinosList}]`;
         } else if (fichaSeleccionada.c === null) {
@@ -746,7 +785,8 @@ const onDown = (e: MouseEvent | TouchEvent): void => {
     let fichaRival: Ficha | null = null;
     rival.fichas.forEach(f => {
         const dist = Math.hypot(m.x - f.x, m.y - f.y);
-        if (dist <= 16) {
+        const radioSeleccion = mobileLandscape.matches && f.c === null ? 16 : 16 * mobileBoardScale();
+        if (dist <= radioSeleccion) {
             fichaRival = f;
         }
     });
@@ -783,7 +823,7 @@ const onUp = (e: MouseEvent | TouchEvent): void => {
 
     // Buscar casilla disponible cercana dentro de tolerancia de 30 px
     let casillaDestino: typeof BOXES[0] | null = null;
-    let minDist = 30;
+    let minDist = 30 * mobileBoardScale();
 
     BOXES.forEach(c => {
         const d = Math.hypot(c.x - ficha.x, c.y - ficha.y);
@@ -836,6 +876,9 @@ const onUp = (e: MouseEvent | TouchEvent): void => {
         ficha.xi = casillaDestino.x;
         ficha.yi = casillaDestino.y;
         ficha.c = casillaDestino.c;
+        if (casillaOrigen === null) {
+            jugador.registrarFichaColocada();
+        }
 
         state.setCasillasVacias();
 
@@ -902,6 +945,49 @@ if (btnReiniciar) {
     btnReiniciar.addEventListener('click', reiniciarPartida);
 }
 
+let landscapeFullscreenAttempted = false;
+
+const mostrarAvisoPantallaCompleta = (mensaje: string, ofrecerAccion: boolean): void => {
+    if (!fullscreenPrompt || !fullscreenPromptMessage || !mobileLandscape.matches) return;
+
+    fullscreenPromptMessage.textContent = mensaje;
+    if (btnFullscreen) btnFullscreen.hidden = !ofrecerAccion;
+    fullscreenPrompt.hidden = false;
+    fullscreenPrompt.classList.add('is-visible');
+};
+
+const ocultarAvisoPantallaCompleta = (): void => {
+    if (!fullscreenPrompt) return;
+
+    fullscreenPrompt.hidden = true;
+    fullscreenPrompt.classList.remove('is-visible');
+};
+
+const requestMobileFullscreen = (fromUserGesture: boolean = false): void => {
+    if (!mobileLandscape.matches) {
+        landscapeFullscreenAttempted = false;
+        ocultarAvisoPantallaCompleta();
+        return;
+    }
+    if (document.fullscreenElement || (!fromUserGesture && landscapeFullscreenAttempted)) return;
+
+    landscapeFullscreenAttempted = true;
+    if (!document.documentElement.requestFullscreen) {
+        mostrarAvisoPantallaCompleta(
+            'Para ocultar Safari, añade el juego a la pantalla de inicio desde el menú Compartir.',
+            false
+        );
+        return;
+    }
+
+    document.documentElement.requestFullscreen().catch(() => {
+        mostrarAvisoPantallaCompleta(
+            'El navegador requiere un toque para ocultar sus barras.',
+            true
+        );
+    });
+};
+
 if (gameTitle) {
     let ultimoToque = 0;
 
@@ -914,26 +1000,33 @@ if (gameTitle) {
             reiniciarPartida();
         } else {
             ultimoToque = ahora;
-
-            if (document.fullscreenElement) return;
-
-            if (document.documentElement.requestFullscreen) {
-                document.documentElement.requestFullscreen().catch(() => {
-                    if (statusMessage) {
-                        statusMessage.textContent = 'No se pudo activar pantalla completa. En iPhone/iPad, añade el juego a la pantalla de inicio desde el menú Compartir.';
-                        statusMessage.style.display = 'block';
-                    }
-                });
-            } else if (statusMessage) {
-                statusMessage.textContent = 'En iPhone/iPad, añade el juego a la pantalla de inicio desde el menú Compartir para ocultar Safari.';
-                statusMessage.style.display = 'block';
-            }
+            requestMobileFullscreen(true);
         }
     });
 }
 
+if (btnFullscreen) {
+    btnFullscreen.addEventListener('click', () => requestMobileFullscreen(true));
+}
+
+mobileLandscape.addEventListener('change', event => {
+    ajustarPosicionesReserva();
+    state.markDirty();
+
+    if (event.matches) {
+        requestMobileFullscreen();
+    } else {
+        landscapeFullscreenAttempted = false;
+    }
+});
+
+if (mobileLandscape.matches) {
+    requestMobileFullscreen();
+}
+
 document.addEventListener('fullscreenchange', () => {
     document.body.classList.toggle('fullscreen-mode', Boolean(document.fullscreenElement));
+    if (document.fullscreenElement) ocultarAvisoPantallaCompleta();
     state.markDirty();
 });
 
@@ -945,6 +1038,7 @@ if (btnAmpliar) {
 }
 
 const canvasResizeObserver = new ResizeObserver(() => {
+    ajustarPosicionesReserva();
     ctx = setupHiDPI(tableroCanvas);
     state.markDirty();
 });
@@ -968,5 +1062,6 @@ tableroCanvas.addEventListener('dblclick',   onDblClick);
 // ARRANQUE
 // ─────────────────────────────────────────────
 
+ajustarPosicionesReserva();
 actualizarHUD();
 gameLoop();
